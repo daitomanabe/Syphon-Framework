@@ -29,8 +29,33 @@
 
 #import "SyphonMetalClient.h"
 #import "SyphonSubclassing.h"
+#import <CoreVideo/CoreVideo.h>
 #import <os/lock.h>
 #import <stdatomic.h>
+
+static MTLPixelFormat SyphonMetalPixelFormatForCVPixelFormat(OSType pixelFormat)
+{
+    switch (pixelFormat)
+    {
+        case kCVPixelFormatType_DepthFloat16:
+        case kCVPixelFormatType_DisparityFloat16:
+        case kCVPixelFormatType_OneComponent16Half:
+            return MTLPixelFormatR16Float;
+        case kCVPixelFormatType_DepthFloat32:
+        case kCVPixelFormatType_DisparityFloat32:
+        case kCVPixelFormatType_OneComponent32Float:
+            return MTLPixelFormatR32Float;
+        case kCVPixelFormatType_64RGBAHalf:
+            return MTLPixelFormatRGBA16Float;
+        case kCVPixelFormatType_128RGBAFloat:
+            return MTLPixelFormatRGBA32Float;
+        case kCVPixelFormatType_OneComponent8:
+            return MTLPixelFormatR8Unorm;
+        case kCVPixelFormatType_32BGRA:
+        default:
+            return MTLPixelFormatBGRA8Unorm;
+    }
+}
 
 @implementation SyphonMetalClient
 {
@@ -95,7 +120,8 @@
         IOSurfaceRef surface = [self newSurface];
         if (surface != nil)
         {
-            MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm width:IOSurfaceGetWidth(surface) height:IOSurfaceGetHeight(surface) mipmapped:NO];
+            MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:SyphonMetalPixelFormatForCVPixelFormat(IOSurfaceGetPixelFormat(surface)) width:IOSurfaceGetWidth(surface) height:IOSurfaceGetHeight(surface) mipmapped:NO];
+            descriptor.usage = MTLTextureUsageShaderRead;
             _frame = [_device newTextureWithDescriptor:descriptor iosurface:surface plane:0];
 
             CFRelease(surface);

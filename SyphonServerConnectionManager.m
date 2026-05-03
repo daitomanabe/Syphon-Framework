@@ -30,6 +30,7 @@
 #import "SyphonServerConnectionManager.h"
 #import "SyphonPrivate.h"
 #import "SyphonMessaging.h"
+#import <CoreVideo/CoreVideo.h>
 
 @interface SyphonServerConnectionManager (Private)
 - (void)addInfoClient:(NSString *)clientUUID;
@@ -38,6 +39,31 @@
 - (void)removeFrameClient:(NSString *)clientUUID;
 - (void)handleDeadConnection;
 @end
+
+static NSUInteger SyphonBytesPerElementForPixelFormat(OSType pixelFormat)
+{
+    switch (pixelFormat)
+    {
+        case kCVPixelFormatType_OneComponent8:
+            return 1U;
+        case kCVPixelFormatType_DepthFloat16:
+        case kCVPixelFormatType_DisparityFloat16:
+        case kCVPixelFormatType_OneComponent16:
+        case kCVPixelFormatType_OneComponent16Half:
+            return 2U;
+        case kCVPixelFormatType_32BGRA:
+        case kCVPixelFormatType_DepthFloat32:
+        case kCVPixelFormatType_DisparityFloat32:
+        case kCVPixelFormatType_OneComponent32Float:
+            return 4U;
+        case kCVPixelFormatType_64RGBAHalf:
+            return 8U;
+        case kCVPixelFormatType_128RGBAFloat:
+            return 16U;
+        default:
+            return 4U;
+    }
+}
 
 @implementation SyphonServerConnectionManager {
 @private
@@ -49,6 +75,7 @@
     IOSurfaceID _surfaceID;
     SyphonSafeBool _hasClients;
     dispatch_queue_t _queue;
+    NSDictionary<NSString *, id<NSCoding>> *_surfaceDescription;
     NSUInteger _publishedFrameCount;
     NSUInteger _surfaceUpdateCount;
 }
@@ -94,6 +121,27 @@
 		_infoClients = [[NSMutableDictionary alloc] initWithCapacity:1];
 		_frameClients = [[NSMutableDictionary alloc] initWithCapacity:1];
 		_queue = dispatch_queue_create([uuid cStringUsingEncoding:NSUTF8StringEncoding], NULL);
+        NSNumber *pixelFormat = [options objectForKey:SyphonServerOptionPixelFormat];
+        if (![pixelFormat respondsToSelector:@selector(unsignedIntValue)])
+        {
+            pixelFormat = [NSNumber numberWithUnsignedInt:kCVPixelFormatType_32BGRA];
+        }
+        NSNumber *bytesPerElement = [options objectForKey:SyphonServerOptionBytesPerElement];
+        if (![bytesPerElement respondsToSelector:@selector(unsignedIntegerValue)])
+        {
+            bytesPerElement = [NSNumber numberWithUnsignedInteger:SyphonBytesPerElementForPixelFormat([pixelFormat unsignedIntValue])];
+        }
+        NSString *frameChannel = [options objectForKey:SyphonServerOptionFrameChannel];
+        if (![frameChannel isKindOfClass:[NSString class]])
+        {
+            frameChannel = SyphonFrameChannelColor;
+        }
+        _surfaceDescription = @{
+            SyphonSurfaceType: SyphonSurfaceTypeIOSurface,
+            SyphonSurfaceDescriptionPixelFormatKey: pixelFormat,
+            SyphonSurfaceDescriptionBytesPerElementKey: bytesPerElement,
+            SyphonSurfaceDescriptionFrameChannelKey: frameChannel
+        };
 	}
 	return self;
 }
@@ -119,7 +167,7 @@
 
 - (NSDictionary<NSString *, id<NSCoding>> *)surfaceDescription
 {
-	return [NSDictionary dictionaryWithObject:SyphonSurfaceTypeIOSurface forKey:SyphonSurfaceType];
+	return _surfaceDescription;
 }
 
 - (void)addInfoClient:(NSString *)clientUUID

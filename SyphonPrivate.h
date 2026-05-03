@@ -53,12 +53,23 @@ extern NSString * const SyphonServerDescriptionSurfacesKey; // An NSArray of NSD
 // Surface-description (dictionary for SyphonServerDescriptionSurfacesKey) keys // and content
 extern NSString * const SyphonSurfaceType;
 extern NSString * const SyphonSurfaceTypeIOSurface;
+extern NSString * const SyphonSurfaceDescriptionPixelFormatKey;
+extern NSString * const SyphonSurfaceDescriptionBytesPerElementKey;
+extern NSString * const SyphonSurfaceDescriptionFrameChannelKey;
 
 // SyphonServer options
 extern NSString * const SyphonServerOptionIsPrivate;
+extern NSString * const SyphonServerOptionPixelFormat;
+extern NSString * const SyphonServerOptionBytesPerElement;
+extern NSString * const SyphonServerOptionFrameChannel;
 extern NSString * const SyphonServerOptionAntialiasSampleCount;
 extern NSString * const SyphonServerOptionDepthBufferResolution;
 extern NSString * const SyphonServerOptionStencilBufferResolution;
+
+extern NSString * const SyphonFrameChannelColor;
+extern NSString * const SyphonFrameChannelDepth;
+extern NSString * const SyphonFrameChannelDisparity;
+extern NSString * const SyphonFrameChannelAuxiliary;
 
 extern NSString * const SyphonDiagnosticsPublishedFrameCountKey;
 extern NSString * const SyphonDiagnosticsSurfaceCreateCountKey;

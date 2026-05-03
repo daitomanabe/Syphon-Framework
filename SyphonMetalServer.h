@@ -54,7 +54,7 @@ extern NSString * const SyphonServerOptionIsPrivate;
 
  @param name Non-unique human readable server name. This is not required and may be `nil`, but is usually used by clients in their UI to aid identification.
  @param device The `MTLDevice` that textures will be valid and available on for publishing.
- @param options A dictionary containing key-value pairs to specify options for the server. The only currently supported option is SyphonServerOptionIsPrivate. See its description for details.
+ @param options A dictionary containing key-value pairs to specify options for the server. `SyphonServerOptionIsPrivate`, `SyphonServerOptionPixelFormat`, and `SyphonServerOptionFrameChannel` are supported. Omit the extended options to publish a standard BGRA8 color stream compatible with existing Syphon clients.
  @returns A newly intialized SyphonMetalServer. Nil on failure.
 */
 - (id)initWithName:(nullable NSString*)name device:(id<MTLDevice>)device options:(nullable NSDictionary<NSString *, id> *)options;

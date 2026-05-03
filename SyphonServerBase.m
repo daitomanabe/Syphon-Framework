@@ -8,6 +8,7 @@
 #import "SyphonServerBase.h"
 #import "SyphonServerConnectionManager.h"
 #import "SyphonPrivate.h"
+#import <CoreVideo/CoreVideo.h>
 #import <os/lock.h>
 
 @interface SyphonServerBase (Private)
@@ -24,23 +25,50 @@ static void finalizer(void)
 {
     // Once our minimum version reaches 10.12, replace
     // this with os_unfair_lock
-	    os_unfair_lock _mdLock;
-	    os_unfair_lock _diagnosticsLock;
+    os_unfair_lock _mdLock;
+    os_unfair_lock _diagnosticsLock;
 
-	    NSString *_name;
+    NSString *_name;
     NSString *_uuid;
     BOOL _broadcasts;
 
     SyphonServerConnectionManager *_connectionManager;
     id<NSObject> _activityToken;
 
-	    IOSurfaceRef _surface;
-	    BOOL _pushPending;
-	    NSUInteger _surfaceCreateCount;
-	    NSUInteger _surfaceResizeCount;
-	    NSUInteger _publishedFrameCount;
-	    IOSurfaceID _lastSurfaceID;
-	}
+    IOSurfaceRef _surface;
+    BOOL _pushPending;
+    OSType _surfacePixelFormat;
+    NSUInteger _surfaceBytesPerElement;
+    NSUInteger _surfaceCreateCount;
+    NSUInteger _surfaceResizeCount;
+    NSUInteger _publishedFrameCount;
+    IOSurfaceID _lastSurfaceID;
+}
+
+static NSUInteger SyphonBytesPerElementForPixelFormat(OSType pixelFormat)
+{
+    switch (pixelFormat)
+    {
+        case kCVPixelFormatType_OneComponent8:
+            return 1U;
+        case kCVPixelFormatType_DepthFloat16:
+        case kCVPixelFormatType_DisparityFloat16:
+        case kCVPixelFormatType_OneComponent16:
+        case kCVPixelFormatType_OneComponent16Half:
+            return 2U;
+        case kCVPixelFormatType_32BGRA:
+        case kCVPixelFormatType_DepthFloat32:
+        case kCVPixelFormatType_DisparityFloat32:
+        case kCVPixelFormatType_OneComponent32Float:
+            return 4U;
+        case kCVPixelFormatType_64RGBAHalf:
+            return 8U;
+        case kCVPixelFormatType_128RGBAFloat:
+            return 16U;
+        default:
+            return 4U;
+    }
+}
 
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
 {
@@ -96,8 +124,13 @@ static void finalizer(void)
             _broadcasts = YES;
         }
 
-	        _mdLock = OS_UNFAIR_LOCK_INIT;
-	        _diagnosticsLock = OS_UNFAIR_LOCK_INIT;
+        NSNumber *pixelFormat = [options objectForKey:SyphonServerOptionPixelFormat];
+        _surfacePixelFormat = [pixelFormat respondsToSelector:@selector(unsignedIntValue)] ? [pixelFormat unsignedIntValue] : kCVPixelFormatType_32BGRA;
+        NSNumber *bytesPerElement = [options objectForKey:SyphonServerOptionBytesPerElement];
+        _surfaceBytesPerElement = [bytesPerElement respondsToSelector:@selector(unsignedIntegerValue)] ? [bytesPerElement unsignedIntegerValue] : SyphonBytesPerElementForPixelFormat(_surfacePixelFormat);
+
+        _mdLock = OS_UNFAIR_LOCK_INIT;
+        _diagnosticsLock = OS_UNFAIR_LOCK_INIT;
 
         _connectionManager = [[SyphonServerConnectionManager alloc] initWithUUID:_uuid options:options];
 
@@ -269,7 +302,15 @@ static void finalizer(void)
 - (IOSurfaceRef)newSurfaceForWidth:(size_t)width height:(size_t)height options:(NSDictionary<NSString *, id> *)options
 {
     // TODO: are we locking here?
-    if (!_surface || IOSurfaceGetWidth(_surface) != width || IOSurfaceGetHeight(_surface) != height)
+    NSNumber *pixelFormatOption = [options objectForKey:SyphonServerOptionPixelFormat];
+    OSType pixelFormat = [pixelFormatOption respondsToSelector:@selector(unsignedIntValue)] ? [pixelFormatOption unsignedIntValue] : _surfacePixelFormat;
+    NSNumber *bytesPerElementOption = [options objectForKey:SyphonServerOptionBytesPerElement];
+    NSUInteger bytesPerElement = [bytesPerElementOption respondsToSelector:@selector(unsignedIntegerValue)] ? [bytesPerElementOption unsignedIntegerValue] : _surfaceBytesPerElement;
+
+    if (!_surface
+        || IOSurfaceGetWidth(_surface) != width
+        || IOSurfaceGetHeight(_surface) != height
+        || IOSurfaceGetPixelFormat(_surface) != pixelFormat)
     {
         BOOL replacedSurface = _surface != NULL;
         if (_surface)
@@ -280,8 +321,8 @@ static void finalizer(void)
         NSDictionary<NSString *, id> *surfaceAttributes = @{(NSString*)kIOSurfaceIsGlobal: @(YES),
                                                             (NSString*)kIOSurfaceWidth: @(width),
                                                             (NSString*)kIOSurfaceHeight: @(height),
-                                                            (NSString*)kIOSurfacePixelFormat: @(kCVPixelFormatType_32BGRA),
-                                                            (NSString*)kIOSurfaceBytesPerElement: @(4U)};
+                                                            (NSString*)kIOSurfacePixelFormat: @(pixelFormat),
+                                                            (NSString*)kIOSurfaceBytesPerElement: @(bytesPerElement)};
 
         _surface =  IOSurfaceCreate((CFDictionaryRef) surfaceAttributes);
         if (_surface)

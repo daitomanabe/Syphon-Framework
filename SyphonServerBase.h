@@ -39,6 +39,66 @@ extern NSString * const SyphonServerOptionIsPrivate;
 
 /*!
  @relates SyphonServerBase
+ If this key is matched with a NSNumber containing a CoreVideo pixel format (`OSType`), Metal-backed servers will allocate IOSurfaces with that pixel format. The default remains `kCVPixelFormatType_32BGRA` for compatibility with existing Syphon clients.
+ */
+extern NSString * const SyphonServerOptionPixelFormat;
+
+/*!
+ @relates SyphonServerBase
+ Optional NSNumber override for IOSurface bytes per element. Most callers should omit this and use the default derived from `SyphonServerOptionPixelFormat`.
+ */
+extern NSString * const SyphonServerOptionBytesPerElement;
+
+/*!
+ @relates SyphonServerBase
+ Optional NSString describing the stream channel. Existing Syphon color streams use `SyphonFrameChannelColor`; depth companion streams should use `SyphonFrameChannelDepth`.
+ */
+extern NSString * const SyphonServerOptionFrameChannel;
+
+/*!
+ @relates SyphonServerBase
+ Surface-description dictionary key for the CoreVideo pixel format (`OSType`) used by the IOSurface.
+ */
+extern NSString * const SyphonSurfaceDescriptionPixelFormatKey;
+
+/*!
+ @relates SyphonServerBase
+ Surface-description dictionary key for the IOSurface bytes per element.
+ */
+extern NSString * const SyphonSurfaceDescriptionBytesPerElementKey;
+
+/*!
+ @relates SyphonServerBase
+ Surface-description dictionary key for the stream channel string.
+ */
+extern NSString * const SyphonSurfaceDescriptionFrameChannelKey;
+
+/*!
+ @relates SyphonServerBase
+ Default color channel string.
+ */
+extern NSString * const SyphonFrameChannelColor;
+
+/*!
+ @relates SyphonServerBase
+ Depth companion channel string.
+ */
+extern NSString * const SyphonFrameChannelDepth;
+
+/*!
+ @relates SyphonServerBase
+ Disparity companion channel string.
+ */
+extern NSString * const SyphonFrameChannelDisparity;
+
+/*!
+ @relates SyphonServerBase
+ Auxiliary companion channel string.
+ */
+extern NSString * const SyphonFrameChannelAuxiliary;
+
+/*!
+ @relates SyphonServerBase
  Diagnostics dictionary key for the number of frame publish operations completed by the server.
  */
 extern NSString * const SyphonDiagnosticsPublishedFrameCountKey;
@@ -93,7 +153,7 @@ extern NSString * const SyphonDiagnosticsLastSurfaceIDKey;
  Creates a new server with the specified human-readable name (which need not be unique) and options. The server will be started immediately. Init may fail and return nil if the server could not be started.
 
  @param serverName Non-unique human readable server name. This is not required and may be nil, but is usually used by clients in their UI to aid identification.
- @param options A dictionary containing key-value pairs to specify options for the server. Currently supported options are SyphonServerOptionIsPrivate, plus any added by the subclass. See their descriptions for details.
+ @param options A dictionary containing key-value pairs to specify options for the server. Currently supported base options are SyphonServerOptionIsPrivate, SyphonServerOptionPixelFormat, SyphonServerOptionBytesPerElement, and SyphonServerOptionFrameChannel, plus any added by the subclass. See their descriptions for details.
  @returns A newly intialized Syphon server. Nil on failure.
 */
 - (instancetype)initWithName:(nullable NSString*)serverName options:(nullable NSDictionary<NSString *, id> *)options NS_DESIGNATED_INITIALIZER;

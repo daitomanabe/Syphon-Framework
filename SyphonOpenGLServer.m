@@ -85,7 +85,10 @@
 
 - (instancetype)initWithName:(NSString*)serverName context:(CGLContextObj)context options:(NSDictionary<NSString *, id> *)options
 {
-    self = [super initWithName:serverName options:options];
+    NSMutableDictionary<NSString *, id> *baseOptions = options ? [options mutableCopy] : nil;
+    [baseOptions removeObjectForKey:SyphonServerOptionPixelFormat];
+    [baseOptions removeObjectForKey:SyphonServerOptionBytesPerElement];
+    self = [super initWithName:serverName options:baseOptions];
 	if(self)
 	{
 		if (context == NULL)
@@ -295,5 +298,4 @@
 }
 
 @end
-
 

@@ -57,6 +57,12 @@ extern NSString * const SyphonServerDescriptionIconKey;
 
 /*!
  @relates SyphonServerDirectory
+ The object for this key is an NSArray of dictionaries describing the surfaces supported by the server. Existing clients can ignore this key; extended clients can inspect it for pixel format and channel metadata.
+ */
+extern NSString * const SyphonServerDescriptionSurfacesKey;
+
+/*!
+ @relates SyphonServerDirectory
  A new SyphonServer is available on the system. The notification object is the shared SyphonServerDirectory instance. The user info dictionary describes the server and may contain SyphonServerDescription keys.
 */
 extern NSString * const SyphonServerAnnounceNotification;

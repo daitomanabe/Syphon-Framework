@@ -38,11 +38,22 @@ NSString * const SyphonServerDescriptionSurfacesKey = @"SyphonServerDescriptionS
 
 NSString * const SyphonSurfaceType = @"SyphonSurfaceType";
 NSString * const SyphonSurfaceTypeIOSurface = @"SyphonSurfaceTypeIOSurface";
+NSString * const SyphonSurfaceDescriptionPixelFormatKey = @"SyphonSurfaceDescriptionPixelFormatKey";
+NSString * const SyphonSurfaceDescriptionBytesPerElementKey = @"SyphonSurfaceDescriptionBytesPerElementKey";
+NSString * const SyphonSurfaceDescriptionFrameChannelKey = @"SyphonSurfaceDescriptionFrameChannelKey";
 
 NSString * const SyphonServerOptionIsPrivate = @"SyphonServerOptionIsPrivate";
+NSString * const SyphonServerOptionPixelFormat = @"SyphonServerOptionPixelFormat";
+NSString * const SyphonServerOptionBytesPerElement = @"SyphonServerOptionBytesPerElement";
+NSString * const SyphonServerOptionFrameChannel = @"SyphonServerOptionFrameChannel";
 NSString * const SyphonServerOptionAntialiasSampleCount = @"SyphonServerOptionAntialiasSampleCount";
 NSString * const SyphonServerOptionDepthBufferResolution = @"SyphonServerOptionDepthBufferResolution";
 NSString * const SyphonServerOptionStencilBufferResolution = @"SyphonServerOptionStencilBufferResolution";
+
+NSString * const SyphonFrameChannelColor = @"color";
+NSString * const SyphonFrameChannelDepth = @"depth";
+NSString * const SyphonFrameChannelDisparity = @"disparity";
+NSString * const SyphonFrameChannelAuxiliary = @"auxiliary";
 
 NSString * const SyphonDiagnosticsPublishedFrameCountKey = @"SyphonDiagnosticsPublishedFrameCountKey";
 NSString * const SyphonDiagnosticsSurfaceCreateCountKey = @"SyphonDiagnosticsSurfaceCreateCountKey";

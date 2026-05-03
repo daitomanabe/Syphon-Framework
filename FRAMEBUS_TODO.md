@@ -10,6 +10,7 @@ This list tracks incremental work toward a more efficient, Metal-native frame sh
 - [x] Create a fork-backed development branch.
 - [x] Add a minimal diagnostics snapshot API for servers and clients.
 - [x] Add documentation for diagnostic keys and intended benchmark usage.
+- [x] Add simple color/depth compatibility test apps.
 - [ ] Add a repeatable benchmark harness for Syphon Metal server/client.
 
 ## Milestone 1: Metal-Native Ring Buffer Prototype

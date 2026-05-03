@@ -31,12 +31,38 @@
 #import "SyphonServerRendererMetal.h"
 #import "SyphonPrivate.h"
 #import "SyphonSubclassing.h"
+#import <CoreVideo/CoreVideo.h>
 
 @implementation SyphonMetalServer
 {
     id<MTLTexture> _surfaceTexture;
     id<MTLDevice> _device;
+    MTLPixelFormat _pixelFormat;
     SyphonServerRendererMetal *_renderer;
+}
+
+static MTLPixelFormat SyphonMetalPixelFormatForCVPixelFormat(OSType pixelFormat)
+{
+    switch (pixelFormat)
+    {
+        case kCVPixelFormatType_DepthFloat16:
+        case kCVPixelFormatType_DisparityFloat16:
+        case kCVPixelFormatType_OneComponent16Half:
+            return MTLPixelFormatR16Float;
+        case kCVPixelFormatType_DepthFloat32:
+        case kCVPixelFormatType_DisparityFloat32:
+        case kCVPixelFormatType_OneComponent32Float:
+            return MTLPixelFormatR32Float;
+        case kCVPixelFormatType_64RGBAHalf:
+            return MTLPixelFormatRGBA16Float;
+        case kCVPixelFormatType_128RGBAFloat:
+            return MTLPixelFormatRGBA32Float;
+        case kCVPixelFormatType_OneComponent8:
+            return MTLPixelFormatR8Unorm;
+        case kCVPixelFormatType_32BGRA:
+        default:
+            return MTLPixelFormatBGRA8Unorm;
+    }
 }
 
 // These are redeclared from SyphonServerBase.h
@@ -52,8 +78,10 @@
     if( self )
     {
         _device = theDevice;
+        NSNumber *pixelFormat = [options objectForKey:SyphonServerOptionPixelFormat];
+        _pixelFormat = SyphonMetalPixelFormatForCVPixelFormat([pixelFormat respondsToSelector:@selector(unsignedIntValue)] ? [pixelFormat unsignedIntValue] : kCVPixelFormatType_32BGRA);
         _surfaceTexture = nil;
-        _renderer = [[SyphonServerRendererMetal alloc] initWithDevice:theDevice colorPixelFormat:MTLPixelFormatBGRA8Unorm];
+        _renderer = [[SyphonServerRendererMetal alloc] initWithDevice:theDevice colorPixelFormat:_pixelFormat];
         if (!_renderer)
         {
             return nil;
@@ -92,7 +120,7 @@
         }
         if(_surfaceTexture == nil)
         {
-            MTLTextureDescriptor *descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
+            MTLTextureDescriptor *descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:_pixelFormat
                                                                                                   width:size.width
                                                                                                  height:size.height
                                                                                               mipmapped:NO];
