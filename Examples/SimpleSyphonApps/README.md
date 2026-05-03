@@ -19,6 +19,16 @@ make framework
 make apps
 ```
 
+The Makefile automatically uses `/Applications/Xcode.app/Contents/Developer` when it exists, so a global `sudo xcode-select -s ...` is not required.
+
+If Xcode reports a missing Metal toolchain, install the component once:
+
+```sh
+make metal-toolchain
+make framework
+make apps
+```
+
 If `Syphon.framework` already exists, point the Makefile at it:
 
 ```sh

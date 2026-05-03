@@ -1,2 +1,4 @@
 Syphon.xcodeproj/project.xcworkspace
 Syphon.xcodeproj/xcuserdata
+build/
+Examples/SimpleSyphonApps/build/

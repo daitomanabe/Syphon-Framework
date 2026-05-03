@@ -153,6 +153,7 @@ static NSString *ArgumentValue(NSArray<NSString *> *arguments, NSString *name, N
         @autoreleasepool
         {
             [self publishFrame];
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.001]];
         }
         usleep(sleepMicros);
     }

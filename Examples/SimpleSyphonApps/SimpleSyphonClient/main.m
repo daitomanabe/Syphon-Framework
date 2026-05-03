@@ -63,6 +63,7 @@ static NSDictionary *FindServer(NSString *requestedName, NSString *channel)
     NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:10.0];
     while ([deadline timeIntervalSinceNow] > 0.0 && gShouldRun)
     {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
         NSArray *servers = [[SyphonServerDirectory sharedDirectory] servers];
         for (NSDictionary *server in servers)
         {
@@ -185,6 +186,7 @@ int main(int argc, const char * argv[])
                         printf("depth diagnostics: %s\n", depthClient.diagnostics.description.UTF8String);
                     }
                 }
+                [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.001]];
                 frameIndex++;
             }
             usleep(16666);
