@@ -49,6 +49,8 @@
     IOSurfaceID _surfaceID;
     SyphonSafeBool _hasClients;
     dispatch_queue_t _queue;
+    NSUInteger _publishedFrameCount;
+    NSUInteger _surfaceUpdateCount;
 }
 
 + (BOOL)automaticallyNotifiesObserversForKey:(NSString *)theKey
@@ -310,11 +312,26 @@
 	return SyphonSafeBoolGet(&_hasClients);
 }
 
+- (NSDictionary<NSString *, NSNumber *> *)diagnostics
+{
+    __block NSDictionary<NSString *, NSNumber *> *result;
+    dispatch_sync(_queue, ^{
+        result = @{
+            SyphonDiagnosticsPublishedFrameCountKey: [NSNumber numberWithUnsignedInteger:self->_publishedFrameCount],
+            SyphonDiagnosticsSurfaceUpdateCountKey: [NSNumber numberWithUnsignedInteger:self->_surfaceUpdateCount],
+            SyphonDiagnosticsInfoClientCountKey: [NSNumber numberWithUnsignedInteger:[self->_infoClients count]],
+            SyphonDiagnosticsFrameClientCountKey: [NSNumber numberWithUnsignedInteger:[self->_frameClients count]]
+        };
+    });
+    return result;
+}
+
 #pragma mark Serving
 
 - (void)publishNewFrame
 {
 	dispatch_sync(_queue, ^{
+        self->_publishedFrameCount++;
 		[_frameClients enumerateKeysAndObjectsUsingBlock:^(NSString *key, SyphonMessageSender *client, BOOL *stop) {
 			[client send:nil ofType:SyphonMessageTypeNewFrame];
 		}];
@@ -325,6 +342,7 @@
 {
 	dispatch_sync(_queue, ^{
 		_surfaceID = newID;
+        self->_surfaceUpdateCount++;
 		[_infoClients enumerateKeysAndObjectsUsingBlock:^(NSString * key, SyphonMessageSender * client, BOOL *stop) {
 			[client send:[NSNumber numberWithUnsignedInt:newID] ofType:SyphonMessageTypeUpdateSurfaceID];
 		}];

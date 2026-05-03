@@ -60,6 +60,20 @@ extern NSString * const SyphonServerOptionAntialiasSampleCount;
 extern NSString * const SyphonServerOptionDepthBufferResolution;
 extern NSString * const SyphonServerOptionStencilBufferResolution;
 
+extern NSString * const SyphonDiagnosticsPublishedFrameCountKey;
+extern NSString * const SyphonDiagnosticsSurfaceCreateCountKey;
+extern NSString * const SyphonDiagnosticsSurfaceResizeCountKey;
+extern NSString * const SyphonDiagnosticsSurfaceUpdateCountKey;
+extern NSString * const SyphonDiagnosticsInfoClientCountKey;
+extern NSString * const SyphonDiagnosticsFrameClientCountKey;
+extern NSString * const SyphonDiagnosticsHasClientsKey;
+extern NSString * const SyphonDiagnosticsLastSurfaceIDKey;
+extern NSString * const SyphonDiagnosticsReceivedFrameNotificationCountKey;
+extern NSString * const SyphonDiagnosticsNewSurfaceRequestCountKey;
+extern NSString * const SyphonDiagnosticsHasNewFrameKey;
+extern NSString * const SyphonDiagnosticsIsValidKey;
+extern NSString * const SyphonDiagnosticsLastFrameIDKey;
+
 NSString *SyphonCreateUUIDString(void) NS_RETURNS_RETAINED;
 
 typedef atomic_int_fast32_t SyphonSafeBool;

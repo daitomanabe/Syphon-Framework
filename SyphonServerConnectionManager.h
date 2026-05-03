@@ -47,6 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 - (BOOL)start;
 - (void)stop;
 @property (readonly) BOOL hasClients;
+@property (readonly) NSDictionary<NSString *, NSNumber *> *diagnostics;
 - (void)publishNewFrame;
 - (void)setSurfaceID:(IOSurfaceID)newID;
 - (void)setName:(NSString *)name;

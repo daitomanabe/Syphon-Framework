@@ -44,6 +44,20 @@ NSString * const SyphonServerOptionAntialiasSampleCount = @"SyphonServerOptionAn
 NSString * const SyphonServerOptionDepthBufferResolution = @"SyphonServerOptionDepthBufferResolution";
 NSString * const SyphonServerOptionStencilBufferResolution = @"SyphonServerOptionStencilBufferResolution";
 
+NSString * const SyphonDiagnosticsPublishedFrameCountKey = @"SyphonDiagnosticsPublishedFrameCountKey";
+NSString * const SyphonDiagnosticsSurfaceCreateCountKey = @"SyphonDiagnosticsSurfaceCreateCountKey";
+NSString * const SyphonDiagnosticsSurfaceResizeCountKey = @"SyphonDiagnosticsSurfaceResizeCountKey";
+NSString * const SyphonDiagnosticsSurfaceUpdateCountKey = @"SyphonDiagnosticsSurfaceUpdateCountKey";
+NSString * const SyphonDiagnosticsInfoClientCountKey = @"SyphonDiagnosticsInfoClientCountKey";
+NSString * const SyphonDiagnosticsFrameClientCountKey = @"SyphonDiagnosticsFrameClientCountKey";
+NSString * const SyphonDiagnosticsHasClientsKey = @"SyphonDiagnosticsHasClientsKey";
+NSString * const SyphonDiagnosticsLastSurfaceIDKey = @"SyphonDiagnosticsLastSurfaceIDKey";
+NSString * const SyphonDiagnosticsReceivedFrameNotificationCountKey = @"SyphonDiagnosticsReceivedFrameNotificationCountKey";
+NSString * const SyphonDiagnosticsNewSurfaceRequestCountKey = @"SyphonDiagnosticsNewSurfaceRequestCountKey";
+NSString * const SyphonDiagnosticsHasNewFrameKey = @"SyphonDiagnosticsHasNewFrameKey";
+NSString * const SyphonDiagnosticsIsValidKey = @"SyphonDiagnosticsIsValidKey";
+NSString * const SyphonDiagnosticsLastFrameIDKey = @"SyphonDiagnosticsLastFrameIDKey";
+
 NSString *SyphonCreateUUIDString(void)
 {
 	// generate UUID

@@ -14,6 +14,7 @@ If you'd like to examine the framework's source code, report a bug, or get invol
 
 - <doc:GettingStarted>
 - <doc:ExtendingSyphon>
+- <doc:Diagnostics>
 
 ### Servers
 

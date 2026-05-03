@@ -31,6 +31,36 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/*!
+ @relates SyphonClientBase
+ Diagnostics dictionary key for the number of frame notifications received by the client.
+ */
+extern NSString * const SyphonDiagnosticsReceivedFrameNotificationCountKey;
+
+/*!
+ @relates SyphonClientBase
+ Diagnostics dictionary key for the number of IOSurface requests made by the client.
+ */
+extern NSString * const SyphonDiagnosticsNewSurfaceRequestCountKey;
+
+/*!
+ @relates SyphonClientBase
+ Diagnostics dictionary key for the current has-new-frame state.
+ */
+extern NSString * const SyphonDiagnosticsHasNewFrameKey;
+
+/*!
+ @relates SyphonClientBase
+ Diagnostics dictionary key for the current validity state.
+ */
+extern NSString * const SyphonDiagnosticsIsValidKey;
+
+/*!
+ @relates SyphonClientBase
+ Diagnostics dictionary key for the last observed frame identifier.
+ */
+extern NSString * const SyphonDiagnosticsLastFrameIDKey;
+
 @interface SyphonClientBase : NSObject
 /*!
  Returns a new client instance for the described server. You should check the isValid property after initialization to ensure a connection was made to the server.
@@ -62,6 +92,11 @@ NS_ASSUME_NONNULL_BEGIN
  Returns YES if the server has output a new frame since the last time newFrameImage was called for this client, NO otherwise.
 */
 @property (readonly) BOOL hasNewFrame;
+
+/*!
+ A snapshot of lightweight runtime counters useful for profiling frame sharing behavior.
+ */
+@property (readonly) NSDictionary<NSString *, NSNumber *> *diagnostics;
 @end
 
 NS_ASSUME_NONNULL_END

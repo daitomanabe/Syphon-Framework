@@ -38,8 +38,10 @@ static void *SyphonClientServersContext = &SyphonClientServersContext;
 
 @implementation SyphonClientBase {
     os_unfair_lock                  _lock;
-    NSUInteger                      _lastFrameID;
-    SyphonClientConnectionManager   *_connectionManager;
+	    NSUInteger                      _lastFrameID;
+	    NSUInteger                      _receivedFrameNotificationCount;
+	    NSUInteger                      _newSurfaceRequestCount;
+	    SyphonClientConnectionManager   *_connectionManager;
     NSDictionary<NSString *, id>    *_serverDescription;
     void                            (^_handler)(id);
 }
@@ -129,6 +131,10 @@ static void *SyphonClientServersContext = &SyphonClientServersContext;
 
 - (void)receiveNewFrame
 {
+    os_unfair_lock_lock(&_lock);
+    _receivedFrameNotificationCount++;
+    os_unfair_lock_unlock(&_lock);
+
     if (_handler)
     {
         _handler(self);
@@ -155,6 +161,26 @@ static void *SyphonClientServersContext = &SyphonClientServersContext;
     NSDictionary *description = _serverDescription;
     os_unfair_lock_unlock(&_lock);
     return description;
+}
+
+- (NSDictionary<NSString *, NSNumber *> *)diagnostics
+{
+    os_unfair_lock_lock(&_lock);
+    NSUInteger receivedFrameNotificationCount = _receivedFrameNotificationCount;
+    NSUInteger newSurfaceRequestCount = _newSurfaceRequestCount;
+    NSUInteger lastFrameID = _lastFrameID;
+    NSUInteger currentFrameID = _connectionManager.frameID;
+    BOOL isValid = _connectionManager.isValid;
+    BOOL hasNewFrame = lastFrameID != currentFrameID;
+    os_unfair_lock_unlock(&_lock);
+
+    return @{
+        SyphonDiagnosticsReceivedFrameNotificationCountKey: [NSNumber numberWithUnsignedInteger:receivedFrameNotificationCount],
+        SyphonDiagnosticsNewSurfaceRequestCountKey: [NSNumber numberWithUnsignedInteger:newSurfaceRequestCount],
+        SyphonDiagnosticsHasNewFrameKey: [NSNumber numberWithBool:hasNewFrame],
+        SyphonDiagnosticsIsValidKey: [NSNumber numberWithBool:isValid],
+        SyphonDiagnosticsLastFrameIDKey: [NSNumber numberWithUnsignedInteger:lastFrameID]
+    };
 }
 
 #pragma mark Changes
@@ -199,6 +225,7 @@ static void *SyphonClientServersContext = &SyphonClientServersContext;
     IOSurfaceRef surface;
     [self updateFrameID];
     os_unfair_lock_lock(&_lock);
+    _newSurfaceRequestCount++;
     surface = [_connectionManager newSurface];
     os_unfair_lock_unlock(&_lock);
     return surface;

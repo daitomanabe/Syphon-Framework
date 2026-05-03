@@ -37,6 +37,54 @@ NS_ASSUME_NONNULL_BEGIN
  */
 extern NSString * const SyphonServerOptionIsPrivate;
 
+/*!
+ @relates SyphonServerBase
+ Diagnostics dictionary key for the number of frame publish operations completed by the server.
+ */
+extern NSString * const SyphonDiagnosticsPublishedFrameCountKey;
+
+/*!
+ @relates SyphonServerBase
+ Diagnostics dictionary key for the number of IOSurfaces created by the server.
+ */
+extern NSString * const SyphonDiagnosticsSurfaceCreateCountKey;
+
+/*!
+ @relates SyphonServerBase
+ Diagnostics dictionary key for the number of IOSurface replacements caused by size changes.
+ */
+extern NSString * const SyphonDiagnosticsSurfaceResizeCountKey;
+
+/*!
+ @relates SyphonServerBase
+ Diagnostics dictionary key for the number of surface ID updates sent to clients.
+ */
+extern NSString * const SyphonDiagnosticsSurfaceUpdateCountKey;
+
+/*!
+ @relates SyphonServerBase
+ Diagnostics dictionary key for the number of clients registered for server info updates.
+ */
+extern NSString * const SyphonDiagnosticsInfoClientCountKey;
+
+/*!
+ @relates SyphonServerBase
+ Diagnostics dictionary key for the number of clients registered for frame callbacks.
+ */
+extern NSString * const SyphonDiagnosticsFrameClientCountKey;
+
+/*!
+ @relates SyphonServerBase
+ Diagnostics dictionary key for the current has-clients state.
+ */
+extern NSString * const SyphonDiagnosticsHasClientsKey;
+
+/*!
+ @relates SyphonServerBase
+ Diagnostics dictionary key for the last IOSurfaceID published by the server.
+ */
+extern NSString * const SyphonDiagnosticsLastSurfaceIDKey;
+
 @interface SyphonServerBase : NSObject
 
 /*!
@@ -63,6 +111,11 @@ extern NSString * const SyphonServerOptionIsPrivate;
  YES if clients are currently attached, NO otherwise. If you generate frames frequently (for instance on a display-link timer), you may choose to test this and only call publishFrameTexture:textureTarget:imageRegion:textureDimensions:flipped: when clients are attached.
  */
 @property (readonly) BOOL hasClients;
+
+/*!
+ A snapshot of lightweight runtime counters useful for profiling frame sharing behavior.
+ */
+@property (readonly) NSDictionary<NSString *, NSNumber *> *diagnostics;
 
 /*!
  Stops the server instance. Use of this method is optional and releasing all references to the server has the same effect.

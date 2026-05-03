@@ -24,18 +24,23 @@ static void finalizer(void)
 {
     // Once our minimum version reaches 10.12, replace
     // this with os_unfair_lock
-    os_unfair_lock _mdLock;
+	    os_unfair_lock _mdLock;
+	    os_unfair_lock _diagnosticsLock;
 
-    NSString *_name;
+	    NSString *_name;
     NSString *_uuid;
     BOOL _broadcasts;
 
     SyphonServerConnectionManager *_connectionManager;
     id<NSObject> _activityToken;
 
-    IOSurfaceRef _surface;
-    BOOL _pushPending;
-}
+	    IOSurfaceRef _surface;
+	    BOOL _pushPending;
+	    NSUInteger _surfaceCreateCount;
+	    NSUInteger _surfaceResizeCount;
+	    NSUInteger _publishedFrameCount;
+	    IOSurfaceID _lastSurfaceID;
+	}
 
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
 {
@@ -91,7 +96,8 @@ static void finalizer(void)
             _broadcasts = YES;
         }
 
-        _mdLock = OS_UNFAIR_LOCK_INIT;
+	        _mdLock = OS_UNFAIR_LOCK_INIT;
+	        _diagnosticsLock = OS_UNFAIR_LOCK_INIT;
 
         _connectionManager = [[SyphonServerConnectionManager alloc] initWithUUID:_uuid options:options];
 
@@ -180,6 +186,27 @@ static void finalizer(void)
     return _connectionManager.hasClients;
 }
 
+- (NSDictionary<NSString *, NSNumber *> *)diagnostics
+{
+    NSDictionary<NSString *, NSNumber *> *connectionDiagnostics = _connectionManager.diagnostics;
+    NSMutableDictionary<NSString *, NSNumber *> *result = connectionDiagnostics ? [connectionDiagnostics mutableCopy] : [NSMutableDictionary dictionary];
+
+    os_unfair_lock_lock(&_diagnosticsLock);
+    NSUInteger surfaceCreateCount = _surfaceCreateCount;
+    NSUInteger surfaceResizeCount = _surfaceResizeCount;
+    NSUInteger publishedFrameCount = _publishedFrameCount;
+    IOSurfaceID lastSurfaceID = _lastSurfaceID;
+    os_unfair_lock_unlock(&_diagnosticsLock);
+
+    result[SyphonDiagnosticsPublishedFrameCountKey] = [NSNumber numberWithUnsignedInteger:publishedFrameCount];
+    result[SyphonDiagnosticsSurfaceCreateCountKey] = [NSNumber numberWithUnsignedInteger:surfaceCreateCount];
+    result[SyphonDiagnosticsSurfaceResizeCountKey] = [NSNumber numberWithUnsignedInteger:surfaceResizeCount];
+    result[SyphonDiagnosticsHasClientsKey] = [NSNumber numberWithBool:self.hasClients];
+    result[SyphonDiagnosticsLastSurfaceIDKey] = [NSNumber numberWithUnsignedInt:lastSurfaceID];
+
+    return result;
+}
+
 - (void)stop
 {
     [self destroyBaseResources];
@@ -244,6 +271,7 @@ static void finalizer(void)
     // TODO: are we locking here?
     if (!_surface || IOSurfaceGetWidth(_surface) != width || IOSurfaceGetHeight(_surface) != height)
     {
+        BOOL replacedSurface = _surface != NULL;
         if (_surface)
         {
             CFRelease(_surface);
@@ -256,6 +284,17 @@ static void finalizer(void)
                                                             (NSString*)kIOSurfaceBytesPerElement: @(4U)};
 
         _surface =  IOSurfaceCreate((CFDictionaryRef) surfaceAttributes);
+        if (_surface)
+        {
+            os_unfair_lock_lock(&_diagnosticsLock);
+            _surfaceCreateCount++;
+            if (replacedSurface)
+            {
+                _surfaceResizeCount++;
+            }
+            _lastSurfaceID = IOSurfaceGetID(_surface);
+            os_unfair_lock_unlock(&_diagnosticsLock);
+        }
 
         _pushPending = YES;
     }
@@ -269,6 +308,10 @@ static void finalizer(void)
 
 - (void)publish
 {
+    os_unfair_lock_lock(&_diagnosticsLock);
+    _publishedFrameCount++;
+    os_unfair_lock_unlock(&_diagnosticsLock);
+
     if (_pushPending)
     {
         // Push the new surface ID to clients
