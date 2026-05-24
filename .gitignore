@@ -1,4 +1,7 @@
+.DS_Store
 Syphon.xcodeproj/project.xcworkspace
 Syphon.xcodeproj/xcuserdata
 build/
 Examples/SimpleSyphonApps/build/
+Examples/SyphonMetalBenchmark/build/
+Examples/SyphonMetalBenchmark/benchmark-results/
