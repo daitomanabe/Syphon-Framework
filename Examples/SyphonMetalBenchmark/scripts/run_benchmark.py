@@ -22,6 +22,10 @@ MATRICES = {
     "1080pmax": {"width": 1920, "height": 1080, "fps": 0, "pixel_format": "bgra8"},
     "4k60": {"width": 3840, "height": 2160, "fps": 60, "pixel_format": "bgra8"},
     "4kmax": {"width": 3840, "height": 2160, "fps": 0, "pixel_format": "bgra8"},
+    "8k60": {"width": 7680, "height": 4320, "fps": 60, "pixel_format": "bgra8"},
+    "8kmax": {"width": 7680, "height": 4320, "fps": 0, "pixel_format": "bgra8"},
+    "16k60": {"width": 15360, "height": 8640, "fps": 60, "pixel_format": "bgra8"},
+    "16kmax": {"width": 15360, "height": 8640, "fps": 0, "pixel_format": "bgra8"},
     "4k120": {"width": 3840, "height": 2160, "fps": 120, "pixel_format": "bgra8"},
     "4k60-rgba16f": {"width": 3840, "height": 2160, "fps": 60, "pixel_format": "rgba16f"},
 }
